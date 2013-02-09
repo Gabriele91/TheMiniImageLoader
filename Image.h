@@ -125,4 +125,7 @@ class Image{
 		static void save_BMP(Image* img,const std::string& path);
 
 };
+
+#include "Image.inl"
+
 #endif

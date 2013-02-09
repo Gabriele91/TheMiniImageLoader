@@ -5,7 +5,7 @@
 #include <string.h>
 #include "Image.h"
 
-#ifdef IMAGE_loadER_OPENGL
+#ifdef IMAGE_LOADER_OPENGL
 	#define TYPE_RGB GL_RGB
 	#define TYPE_RGBA GL_RGBA
 #else
@@ -49,9 +49,7 @@ typedef struct TgaHeader
     
 }GCCALLINEAMENT TgaHeader;
 /* BITMAP HEADERS */
-#ifndef BI_RGB
- #define BI_RGB 0
-#endif
+#define LOCAL_BI_RGB 0
 typedef struct  BitmapFileHeader {
   unsigned short bfType;
   unsigned long bfSize;
@@ -150,7 +148,7 @@ void Image::loadImage(const std::string& path){
             this->name=path;
 	}
 	
-#if defined( IMAGE_loadER_OPENGL )
+#if defined( IMAGE_LOADER_OPENGL )
 	this->flipY();
 #endif
 #if defined( __IPHONEOS__ )
@@ -539,7 +537,7 @@ Image* Image::getImageFromScreen(int width,int height){
     out_img->channels=4;
     out_img->type=TYPE_RGBA;
     out_img->bytes=(BYTE*)malloc(width * height * 4);  ;
-	#ifdef IMAGE_loadER_OPENGL
+	#ifdef IMAGE_LOADER_OPENGL
 		glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, out_img->bytes);
 	#endif
 	return out_img;
@@ -626,7 +624,7 @@ void Image::loadBuffer_BitMap(Image* img,BYTE *buffer,size_t bfsize){
 	img->channels=bIH->biBitCount / 8;
 	BYTE* dataImage=(BYTE*)(buffer+bFH->bfOffBits);
 
-	if(bIH->biCompression  == BI_RGB){
+	if(bIH->biCompression  == LOCAL_BI_RGB){
 		if(bIH->biBitCount == 16){
 			img->channels= 3;
 			img->bytes=dataImage;
@@ -682,7 +680,7 @@ void Image::saveBuffer_BMP(Image* img,BYTE*& buffer,size_t& bfsize){
 	bmih->biHeight        = img->height;
 	bmih->biWidth         = img->width;
 	bmih->biPlanes        = 1;
-	bmih->biCompression   = BI_RGB; //IS RGB (No Compression)
+	bmih->biCompression   = LOCAL_BI_RGB; //IS RGB (No Compression)
 	bmih->biBitCount	  = img->channels * 8 ; //pixel format (24, or 32)
 	bmih->biSizeImage     = imgSize;
 	bmih->biXPelsPerMeter = 3780;
@@ -710,3 +708,28 @@ void Image::save_BMP(Image* img,const std::string& path){
 	////////////////////////////////
 }
 
+//UNDEF
+#ifdef GCCALLINEAMENT
+#undef GCCALLINEAMENT
+#endif
+
+#ifdef TYPE_RGB
+#undef TYPE_RGB
+#endif
+#ifdef TYPE_RGBA
+#undef TYPE_RGBA
+#endif
+
+#ifdef TGA_RGB
+#undef TGA_RGB
+#endif
+#ifdef TGA_A
+#undef TGA_A
+#endif
+#ifdef TGA_RLE
+#undef TGA_RLE
+#endif
+
+#ifdef LOCAL_BI_RGB
+#undef LOCAL_BI_RGB
+#endif
